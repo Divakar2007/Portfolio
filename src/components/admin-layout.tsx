@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Home, User, Package, LogOut, PanelLeft, LayoutDashboard } from "lucide-react"
+import { Home, User, Package, LogOut, PanelLeft, LayoutDashboard, Wand2 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -25,6 +25,7 @@ const navItems = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
   { href: "/admin/projects", label: "Projects", icon: Package },
   { href: "/admin/profile", label: "Profile", icon: User },
+  { href: "/admin/tagline-generator", label: "AI Taglines", icon: Wand2 },
 ]
 
 export function AdminLayout({ children }: { children: React.ReactNode }) {

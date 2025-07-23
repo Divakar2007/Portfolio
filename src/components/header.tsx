@@ -45,12 +45,6 @@ export function Header() {
             >
               Home
             </Link>
-            <Link
-              href="/tagline-generator"
-              className="transition-colors hover:text-foreground/80 text-foreground/60"
-            >
-              AI Tagline Generator
-            </Link>
           </nav>
         </div>
         <div className="flex flex-1 items-center justify-end space-x-4">
