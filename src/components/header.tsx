@@ -4,9 +4,15 @@ import Link from "next/link"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { useAuth } from "@/components/auth-provider"
 import { Button } from "@/components/ui/button"
+import { useEffect, useState } from "react"
 
 export function Header() {
   const { isAuthenticated } = useAuth()
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -48,11 +54,17 @@ export function Header() {
           </nav>
         </div>
         <div className="flex flex-1 items-center justify-end space-x-4">
-           <Link href={isAuthenticated ? "/admin" : "/login"} passHref>
-             <Button variant="outline" size="sm">
+          {mounted ? (
+            <Link href={isAuthenticated ? "/admin" : "/login"} passHref>
+              <Button variant="outline" size="sm">
                 {isAuthenticated ? "Admin Dashboard" : "Admin Login"}
-             </Button>
-           </Link>
+              </Button>
+            </Link>
+          ) : (
+            <Button variant="outline" size="sm" disabled>
+              Admin Login
+            </Button>
+          )}
           <ThemeToggle />
         </div>
       </div>
