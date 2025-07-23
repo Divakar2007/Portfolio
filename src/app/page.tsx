@@ -16,6 +16,7 @@ export default function Home() {
       <section id="hero" className="container py-20 md:py-32">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
           <div className="flex flex-col gap-4 text-center md:text-left">
+            <h2 className="text-2xl font-semibold tracking-tight text-primary">{profile.name}</h2>
             <h1 className="text-4xl md:text-5xl font-extrabold tracking-tighter font-headline">
               {profile.title}
             </h1>
