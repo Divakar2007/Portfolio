@@ -58,7 +58,6 @@ export type Profile = {
   bio: string;
   github: string;
   linkedin: string;
-  twitter: string;
 };
 
 export const initialProfile: Profile = {
@@ -68,5 +67,4 @@ export const initialProfile: Profile = {
     bio: "Welcome to my digital space. I specialize in building robust and scalable web applications. Explore my work and get in touch!",
     github: "#",
     linkedin: "#",
-    twitter: "#",
 };

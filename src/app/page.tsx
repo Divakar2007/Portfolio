@@ -2,7 +2,7 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { Github, Linkedin, Twitter } from 'lucide-react';
+import { Github, Linkedin } from 'lucide-react';
 import { ProjectCard } from '@/components/project-card';
 import { ContactForm } from '@/app/contact-form';
 import { Button } from '@/components/ui/button';
@@ -36,9 +36,6 @@ export default function Home() {
               </Link>
               <Link href={profile.linkedin} aria-label="LinkedIn Profile" target="_blank" rel="noopener noreferrer">
                 <Linkedin className="h-6 w-6 text-muted-foreground hover:text-foreground transition-colors" />
-              </Link>
-              <Link href={profile.twitter} aria-label="Twitter Profile" target="_blank" rel="noopener noreferrer">
-                <Twitter className="h-6 w-6 text-muted-foreground hover:text-foreground transition-colors" />
               </Link>
             </div>
           </div>

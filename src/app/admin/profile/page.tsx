@@ -25,7 +25,6 @@ const profileFormSchema = z.object({
   bio: z.string().min(10, "Bio must be at least 10 characters."),
   github: z.string().url("Must be a valid URL."),
   linkedin: z.string().url("Must be a valid URL."),
-  twitter: z.string().url("Must be a valid URL."),
 })
 
 type ProfileFormValues = z.infer<typeof profileFormSchema>
@@ -36,7 +35,7 @@ export default function ProfilePage() {
 
   const form = useForm<ProfileFormValues>({
     resolver: zodResolver(profileFormSchema),
-    defaultValues: profile,
+    defaultValues: { ...profile, twitter: undefined },
   })
 
   function onSubmit(data: ProfileFormValues) {
@@ -119,7 +118,7 @@ export default function ProfilePage() {
                   </FormItem>
                 )}
               />
-              <div className="grid md:grid-cols-3 gap-8">
+              <div className="grid md:grid-cols-2 gap-8">
                 <FormField
                   control={form.control}
                   name="github"
@@ -141,19 +140,6 @@ export default function ProfilePage() {
                       <FormLabel>LinkedIn URL</FormLabel>
                       <FormControl>
                         <Input placeholder="https://linkedin.com/in/your-profile" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="twitter"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Twitter/X URL</FormLabel>
-                      <FormControl>
-                        <Input placeholder="https://twitter.com/your-handle" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
