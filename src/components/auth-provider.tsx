@@ -3,6 +3,8 @@
 import type { ReactNode } from "react"
 import { createContext, useContext, useEffect, useState } from "react"
 import { initialProjects, initialProfile, type Project, type Profile } from "@/lib/data"
+import { database } from "@/lib/firebase"
+import { ref, onValue, set, push, remove } from "firebase/database"
 
 type AuthContextType = {
   isAuthenticated: boolean
@@ -26,26 +28,59 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return localStorage.getItem("isAuthenticated") === "true"
   })
   
-  const [profile, setProfile] = useState<Profile>(() => {
-    if (isServer) return initialProfile;
-    const savedProfile = localStorage.getItem("profile")
-    return savedProfile ? JSON.parse(savedProfile) : initialProfile
-  })
-
-  const [projects, setProjects] = useState<Project[]>(() => {
-    if (isServer) return initialProjects
-    const savedProjects = localStorage.getItem("projects")
-    return savedProjects ? JSON.parse(savedProjects) : initialProjects
-  })
+  const [profile, setProfile] = useState<Profile>(initialProfile)
+  const [projects, setProjects] = useState<Project[]>(initialProjects)
 
   useEffect(() => {
-    if(!localStorage.getItem("profile")) {
-      localStorage.setItem("profile", JSON.stringify(initialProfile))
-    }
-    if(!localStorage.getItem("projects")) {
-      localStorage.setItem("projects", JSON.stringify(initialProjects))
-    }
-  }, [])
+    const profileRef = ref(database, 'profile');
+    const projectsRef = ref(database, 'projects');
+
+    const unsubscribeProfile = onValue(profileRef, (snapshot) => {
+      const data = snapshot.val();
+      if (data) {
+        setProfile(data);
+      } else {
+        // If no data, initialize it in Firebase
+        set(profileRef, initialProfile);
+      }
+    });
+
+    const unsubscribeProjects = onValue(projectsRef, (snapshot) => {
+      const data = snapshot.val();
+      if (data) {
+        // Firebase returns an object, convert it to an array
+        const projectsArray = Object.keys(data).map(key => ({
+          id: key,
+          ...data[key]
+        }));
+        setProjects(projectsArray);
+      } else {
+        // If no data, initialize it in Firebase
+        const projectsWithFirebaseKeys: {[key: string]: Omit<Project, 'id'>} = {};
+        initialProjects.forEach(p => {
+            const newProjectRef = push(projectsRef);
+            if(newProjectRef.key){
+                projectsWithFirebaseKeys[newProjectRef.key] = {
+                    title: p.title,
+                    description: p.description,
+                    tags: p.tags,
+                    imageUrl: p.imageUrl,
+                    imageHint: p.imageHint,
+                    liveUrl: p.liveUrl,
+                    githubUrl: p.githubUrl,
+                }
+            }
+        });
+        set(projectsRef, projectsWithFirebaseKeys);
+      }
+    });
+
+    // Cleanup subscription on unmount
+    return () => {
+      unsubscribeProfile();
+      unsubscribeProjects();
+    };
+  }, []);
   
 
   useEffect(() => {
@@ -54,21 +89,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [isAuthenticated])
 
-  useEffect(() => {
-    if (!isServer) {
-      localStorage.setItem("profile", JSON.stringify(profile))
-    }
-  }, [profile])
-
-  useEffect(() => {
-    if (!isServer) {
-      localStorage.setItem("projects", JSON.stringify(projects))
-    }
-  }, [projects])
-
   const login = (password: string) => {
-    // In a real app, you'd have a username and verify against a backend.
-    // Here, we'll use a simple hardcoded password.
     if (password === "admin") {
       setIsAuthenticated(true)
       return true
@@ -81,19 +102,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   const updateProfile = (newProfile: Profile) => {
-    setProfile(newProfile)
+    const profileRef = ref(database, 'profile');
+    set(profileRef, newProfile);
   }
 
   const addProject = (newProject: Omit<Project, 'id'>) => {
-    setProjects(prev => [...prev, { ...newProject, id: String(Date.now()) }])
+    const projectsRef = ref(database, 'projects');
+    const newProjectRef = push(projectsRef);
+    set(newProjectRef, newProject);
   }
 
   const updateProject = (updatedProject: Project) => {
-    setProjects(prev => prev.map(p => p.id === updatedProject.id ? updatedProject : p))
+    const { id, ...projectData } = updatedProject;
+    const projectRef = ref(database, `projects/${id}`);
+    set(projectRef, projectData);
   }
 
   const deleteProject = (projectId: string) => {
-    setProjects(prev => prev.filter(p => p.id !== projectId))
+    const projectRef = ref(database, `projects/${projectId}`);
+    remove(projectRef);
   }
 
   const value = {
